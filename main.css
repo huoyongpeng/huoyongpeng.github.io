@@ -1,0 +1,30 @@
+.decimal {
+	background-color: red;
+	color: white;
+}
+.string {
+	background-color: purple;
+	color: white;
+}
+.complexType, .complexType:link, .complexType:visited, .complexType:hover, .complexType:active {
+	color: white;
+}
+.complexType {
+	background-color: green;
+	color: white;
+}
+
+.jstree-anchor {
+	padding-right: 30px;
+	position: relative;
+}
+.remove-btn {
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 100;
+	cursor: pointer;
+}
+.default .remove-btn {
+	display: none;
+}

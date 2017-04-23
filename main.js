@@ -12,6 +12,48 @@ function extend(base, prop) {
     }
     return newObj;
 }
+/**
+重写创建节点代码
+https://github.com/vakata/jstree/blob/master/dist/jstree.js
+*/
+$.jstree.core.prototype._create_prototype_node = function(){
+    var _node = document.createElement('LI'), _temp1, _temp2;
+    _node.setAttribute('role', 'treeitem');
+    _temp1 = document.createElement('I');
+    _temp1.className = 'jstree-icon jstree-ocl';
+    _temp1.setAttribute('role', 'presentation');
+    _node.appendChild(_temp1);
+    _temp1 = document.createElement('A');
+    _temp1.className = 'jstree-anchor';
+    _temp1.setAttribute('href','#');
+    _temp1.setAttribute('tabindex','-1');
+    _temp2 = document.createElement('I');
+    _temp2.className = 'jstree-icon jstree-themeicon';
+    _temp2.setAttribute('role', 'presentation');
+    _temp1.appendChild(_temp2);
+    _node.appendChild(_temp1);
+
+    var removeElm = document.createElement('button');
+    removeElm.className = 'remove-btn';
+    removeElm.innerHTML = '&times;';
+    removeElm.title = '删除这个节点（包括子节点）'
+    _temp1.appendChild(removeElm);
+    console.log("remove");
+    _temp1 = _temp2 = null;
+
+    return _node;
+};
+var original_redraw_node = $.jstree.core.prototype.redraw_node;
+$.jstree.core.prototype.redraw_node = function (node, deep, is_callback, force_render) {
+    console.log("redraw", arguments);
+    var data = this.get_node(node);
+
+    var obj = original_redraw_node.apply(this, Array.prototype.slice.call(arguments));
+    var a = $('a', obj);
+    $(a[0]).addClass(data.type);
+    return obj;
+};
+
 /*
 针对不同的节点类型，弹出不同的右键操作列表
 1. 注解节点只在根节点下展示，注解节点的子节点只能添加documentation叶节点
@@ -349,16 +391,7 @@ var x2js = new X2JS();
 var jsonObj = x2js.xml_str2json(xmlText);
 
 
-//tranverseJson(jsonObj, process);
-var data = bridge(jsonObj.schema, 'schema', {
-    children: []
-});
-console.info(data);
-$('#jstree').jstree({
-    core: {
-        data: data
-    }
-});
+
 
 function bridge(obj, key, parentNode) {
     //console.log(obj, key, parentNode);
@@ -477,6 +510,7 @@ var TEST_DATA = [{
             "id": "j2_5",
             "text": "balls",
             "icon": "./images/complexType.png",
+            "theme": "hugo",
             "data": {
                 "type": "complexType",
                 "name": "balls",
@@ -513,10 +547,28 @@ function refactorNodeName(item) {
     });
 }
 
+function initExport(){
+    $('#export').click(function(){
+        exportXML();
+    });
+}
+
+function initRemoveBtn (){
+    $('#rootNode').click(function(e){
+        if(e.target.className == 'remove-btn') {
+            var id = $(e.target).parent().parent().attr('id');
+            var tree = $('#rootNode').jstree();
+            tree.delete_node(id);
+        }
+    });
+}
+
 function init() {
     refactorNodeName(TEST_DATA[0]);
     initTree(TEST_DATA);
     initForm();
+    initRemoveBtn();
+    initExport();
 }
 
 $(init);
