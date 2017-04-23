@@ -1,0 +1,29 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" 
+xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="sports">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ballGame">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="basketball" type="xs:string" />
+              <xs:element name="football" type="xs:int" />
+              <xs:element name="pingpong" type="xs:xsd:boolean" />
+              <xs:element name="badminton" type="xs:undefined" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="food">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="pie" type="xs:string" />
+              <xs:element name="banana" type="xs:int" />
+              <xs:element name="apple" type="xs:xsd:boolean" />
+              <xs:element name="noodle" type="xs:undefined" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
