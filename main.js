@@ -449,8 +449,9 @@ function initForm() {
             },
             data: json
         };
-        node.text = this.name.value + JSON.stringify(json);
         delete json.name;
+        node.text = this.name.value + JSON.stringify(json);
+        json.name = this.name;
         if(currentEditedNode){
             tree.rename_node(currentEditedNode.id, node.text);
             currentEditedNode.data = json;
@@ -463,8 +464,8 @@ function initForm() {
 
 function refactorNodeName(item) {
     item.data.type = item.type;
-    //item.data.name = item.text;
     var dataJsonStr = JSON.stringify(item.data);
+    item.data.name = item.text;
     item.text += dataJsonStr;
     
     item.children && item.children.forEach(function(child) {
