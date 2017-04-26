@@ -450,8 +450,9 @@ function initForm() {
             data: json
         };
         delete json.name;
-        node.text = this.name.value + JSON.stringify(json);
-        json.name = this.name;
+        var name = this.name.value;
+        node.text = name + JSON.stringify(json);
+        json.name = name;
         if(currentEditedNode){
             tree.rename_node(currentEditedNode.id, node.text);
             currentEditedNode.data = json;
