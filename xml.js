@@ -164,3 +164,63 @@ function exportXML() {
     });
     return jsonToXSD(str);
 }
+
+
+function xmlToJSON(xmlStr){
+    var xmlDoc = $.parseXML(xmlStr);
+    var json = nodeToJSON(xmlDoc.childNodes[0]);
+    document.documentElement.appendChild(xmlDoc.childNodes[0]);
+    return json;
+}
+function getNameFromXsdNode(xsdNode) {
+    var name = xsdNode.getAttribute('name');
+    if(!name) {
+        return xsdNode.nodeName.split(':')[1];
+    }
+    return name;
+}
+function nodeToJSON(node) {
+    var json = {
+        children: [],
+        state: {
+            opened: true
+        },
+        data: {}
+    };
+    var text = getNameFromXsdNode(node);
+    json.text = text;
+    switch(node.nodeName) {
+        case 'xs:schema':
+            json.type = 'schema';
+        break;
+    }
+
+    
+    for(var i = 0; i < node.childNodes.length; i++){
+        var childNode = node.childNodes[i];
+        switch(childNode.nodeName) {
+            case 'xs:complexType':
+                json.type = 'complexType';
+                var sequence = childNode.childNodes[0];
+                sequence.childNodes.forEach(function(element){
+                    json.children.push(nodeToJSON(element));
+                });
+            break;
+            case 'xs:simpleType':
+                var restriction = childNode.childNodes[0];
+                json.type = restriction.getAttribute('base').split(':')[1];
+                restriction.childNodes.forEach(function(item){
+                    var key = getNameFromXsdNode(item);
+                    json.data[key] = item.getAttribute('value');
+                });
+            break;
+            case 'xs:element':
+                json.children.push(nodeToJSON(childNode));
+                break;
+        }
+        
+    }
+    
+    json.icon = './images/' + json.type + '.png';
+    return json;
+}

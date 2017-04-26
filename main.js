@@ -289,7 +289,10 @@ function getPropertiesContainer(type) {
             name: 'name',
             label: '名称',
             placeholder: '名称'
-        }, {
+        }
+    ];
+    if(type != 'complexType') {
+        common = common.concat([{
             type: 'text',
             name: 'maxOccurs',
             label: '出现次数最大值',
@@ -300,8 +303,8 @@ function getPropertiesContainer(type) {
             name: 'minOccurs',
             label: '出现次数最小值',
             placeholder: 'minOccurs'
-        }
-    ];
+        }]);
+    }
     if (type != 'documentation') {
         var arr = common.concat(properties);
     } else {
@@ -381,17 +384,9 @@ function editNode(node) {
 }
 
 
-
 /** start of  尝试从xsd文件转换为渲染tree用的json
 =============================================
 */
-
-var xmlText = '<?xml version="1.0"?> <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"> <xs:annotation> <xs:documentation xml:lang="en">test</xs:documentation> <xs:documentation xml:lang="en">hugo</xs:documentation> </xs:annotation> <xs:element name="stringNode"> <xs:simpleType> <xs:restriction base="xs:string"> <xs:maxLength value="70"/> <xs:pattern value="a-z"/> </xs:restriction> </xs:simpleType> </xs:element> <xs:element name="complexTypeNode"> <xs:complexType> <xs:sequence> <xs:element name="hugo"> <xs:simpleType> <xs:restriction base="xs:string"> <xs:minLength value="10"/> <xs:maxLength value="40"/> <xs:pattern value="a-z"/> <xs:maxOccurs value="2"/> <xs:minOccurs value="1"/> </xs:restriction> </xs:simpleType> </xs:element> <xs:element name="balls"> <xs:complexType> <xs:sequence> <xs:element name="age"> <xs:simpleType> <xs:restriction base="xs:decimal"> <xs:minInclusive value="10"/> <xs:maxInclusive value="100"/> <xs:maxOccurs value="2"/> <xs:minOccurs value="5"/> </xs:restriction> </xs:simpleType> </xs:element> </xs:sequence> </xs:complexType> </xs:element> </xs:sequence> </xs:complexType> </xs:element> </xs:schema>';
-var x2js = new X2JS();
-var jsonObj = x2js.xml_str2json(xmlText);
-
-
-
 
 function bridge(obj, key, parentNode) {
     //console.log(obj, key, parentNode);
@@ -455,6 +450,7 @@ function initForm() {
             data: json
         };
         node.text = this.name.value + JSON.stringify(json);
+        delete json.name;
         if(currentEditedNode){
             tree.rename_node(currentEditedNode.id, node.text);
             currentEditedNode.data = json;
@@ -464,84 +460,13 @@ function initForm() {
         
     });
 }
-//初始化渲染树用到的json数据
-var TEST_DATA = [{
-    "text": "schema",
-    "icon": "./images/schema.png",
-    "data": {},
-    "children": [{
-        "id": "j2_2",
-        "text": "string node",
-        "icon": "./images/string.png",
-        "data": {
-            "maxLength": 70,
-            "pattern": "a-z",
-            "type": "string",
-            "name": "stringNode"
-        },
-        "children": [],
-        "type": "string"
-    }, {
-        "id": "j2_3",
-        "text": "complexType",
-        "icon": "./images/complexType.png",
-        "data": {
-            "minOccurs": 2,
-            "maxOccurs": 10,
-            "type": "complexType",
-            "name": "complexTypeNode"
-        },
-        "children": [{
-            "id": "j2_4",
-            "text": "String Test Node",
-            "icon": "./images/string.png",
-            "data": {
-                "type": "string",
-                "name": "hugo",
-                "maxOccurs": "2",
-                "minOccurs": "1",
-                "pattern": "a-z",
-                "minLength": "10",
-                "maxLength": "40"
-            },
-            "children": [],
-            "type": "string"
-        }, {
-            "id": "j2_5",
-            "text": "balls",
-            "icon": "./images/complexType.png",
-            "theme": "hugo",
-            "data": {
-                "type": "complexType",
-                "name": "balls",
-                "maxOccurs": "10",
-                "minOccurs": "20"
-            },
-            "children": [{
-                "id": "j2_6",
-                "text": "age",
-                "icon": "./images/decimal.png",
-                "data": {
-                    "type": "decimal",
-                    "name": "age",
-                    "maxOccurs": "2",
-                    "minOccurs": "5",
-                    "minInclusive": "10",
-                    "maxInclusive": "100"
-                },
-                "children": [],
-                "type": "decimal"
-            }],
-            "type": "complexType"
-        }],
-        "type": "complexType"
-    }],
-    "type": "schema"
-}];
-
 
 function refactorNodeName(item) {
-    item.text = item.text + JSON.stringify(item.data)
+    item.data.type = item.type;
+    //item.data.name = item.text;
+    var dataJsonStr = JSON.stringify(item.data);
+    item.text += dataJsonStr;
+    
     item.children && item.children.forEach(function(child) {
         refactorNodeName(child);
     });
@@ -562,10 +487,11 @@ function initRemoveBtn (){
         }
     });
 }
-
+var XML_STR = '<?xml version="1.0"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="stringNode"><xs:simpleType><xs:restriction base="xs:string"><xs:maxLength value="70"/><xs:pattern value="a-z"/></xs:restriction></xs:simpleType></xs:element><xs:element name="complexTypeNode"><xs:complexType><xs:sequence><xs:element name="hugo"><xs:simpleType><xs:restriction base="xs:string"><xs:minLength value="10"/><xs:maxLength value="40"/><xs:pattern value="a-z"/><xs:maxOccurs value="2"/><xs:minOccurs value="1"/></xs:restriction></xs:simpleType></xs:element><xs:element name="balls"><xs:complexType><xs:sequence><xs:element name="age"><xs:simpleType><xs:restriction base="xs:decimal"><xs:minInclusive value="10"/><xs:maxInclusive value="100"/><xs:maxOccurs value="2"/><xs:minOccurs value="5"/></xs:restriction></xs:simpleType></xs:element></xs:sequence></xs:complexType></xs:element></xs:sequence></xs:complexType></xs:element><xs:element name="plane"><xs:complexType><xs:sequence><xs:element name="boeing"><xs:simpleType><xs:restriction base="xs:string"><xs:minLength value="10"/><xs:maxLength value="20"/><xs:pattern value="a-zA-Z"/><xs:maxOccurs value="0"/><xs:minOccurs value="100"/></xs:restriction></xs:simpleType></xs:element></xs:sequence></xs:complexType></xs:element><xs:element name="isBiggest"><xs:simpleType><xs:restriction base="xs:boolean"><xs:maxOccurs value="1"/><xs:minOccurs value="20"/></xs:restriction></xs:simpleType></xs:element></xs:schema>';
 function init() {
-    refactorNodeName(TEST_DATA[0]);
-    initTree(TEST_DATA);
+    var data = xmlToJSON(XML_STR);
+    refactorNodeName(data);
+    initTree(data);
     initForm();
     initRemoveBtn();
     initExport();
